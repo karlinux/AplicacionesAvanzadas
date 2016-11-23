@@ -16,13 +16,19 @@ import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class MainActivity extends AppCompatActivity {
+    // Facebook
     private CallbackManager  cM;
     private LoginButton lB;
+
+    // Banner
+    private AdView adView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,9 +37,19 @@ public class MainActivity extends AppCompatActivity {
         FacebookSdk.sdkInitialize(getApplicationContext());
         cM = CallbackManager.Factory.create();
 
-        getFbKeyHash("6KnJH2rXN1WnOo8p+g31peeEfXk=");
+        getFbKeyHash("vTnagApMPcFr1wY+Blqn4XvhaL0=");
 
         setContentView(R.layout.activity_main);
+
+        // Implementamos el banner
+        adView = (AdView) findViewById(R.id.ad_view);
+
+        // Request de la publicidad
+        AdRequest adRequest = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
+        adView.loadAd(adRequest);
+
+
+        // Facebook boton de inicio de sesión
         lB = (LoginButton) findViewById(R.id.login_facebook);
         lB.registerCallback(cM, new FacebookCallback<LoginResult>() {
             @Override
@@ -52,6 +68,31 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "Inicio de sesión NO exitoso!", Toast.LENGTH_SHORT).show();
             }
         });
+        ///////////////////////////////////
+    }
+
+    @Override
+    protected void onResume() {
+        if(adView!=null){
+            adView.resume();
+        }
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        if(adView!=null){
+            adView.pause();
+        }
+        super.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        if(adView!=null){
+            adView.destroy();
+        }
+        super.onDestroy();
     }
 
     private void getFbKeyHash(String packageName) {
